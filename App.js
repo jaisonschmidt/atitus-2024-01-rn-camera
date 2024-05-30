@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Button, TouchableOpacity } from 'react-native';
@@ -6,6 +6,14 @@ import { StyleSheet, Text, View, Button, TouchableOpacity } from 'react-native';
 export default function App() {
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState('front');
+  const cameraRef = useRef(null);
+
+  const takePicture = () => {
+    if (cameraRef.current) {
+      cameraRef.current.takePictureAsync({skipProcessing: true})
+      .then( (photoData) => console.log(photoData) );
+    }
+  }
 
   if( !permission ) {
     // nem sei se tenho permissão de acesso a camera
@@ -28,7 +36,7 @@ export default function App() {
   // temos permissão para acessar a camera
   return (
     <View style={styles.container}>
-      <CameraView style={styles.camera} facing={facing}>
+      <CameraView style={styles.camera} facing={facing} ref={cameraRef}>
         <View style={styles.buttonContainer}>
 
           <TouchableOpacity 
@@ -37,7 +45,7 @@ export default function App() {
             <Text style={styles.font}>Trocar Camera</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity>
+          <TouchableOpacity onPress={takePicture}>
             <Text style={styles.font}>Tirar Foto</Text>
           </TouchableOpacity>
 
