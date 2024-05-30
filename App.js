@@ -1,17 +1,22 @@
 import { useState, useRef } from 'react';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { StatusBar } from 'expo-status-bar';
+import { Image } from 'expo-image';
 import { StyleSheet, Text, View, Button, TouchableOpacity } from 'react-native';
+import * as MediaLibrary from "expo-media-library";
 
 export default function App() {
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState('front');
+  const [img, setImg] = useState(null);
   const cameraRef = useRef(null);
 
   const takePicture = () => {
     if (cameraRef.current) {
       cameraRef.current.takePictureAsync({skipProcessing: true})
-      .then( (photoData) => console.log(photoData) );
+      .then( (photoData) => {
+        MediaLibrary.saveToLibraryAsync(photoData.uri);
+        setImg(photoData);
+      });
     }
   }
 
@@ -36,21 +41,34 @@ export default function App() {
   // temos permissão para acessar a camera
   return (
     <View style={styles.container}>
-      <CameraView style={styles.camera} facing={facing} ref={cameraRef}>
-        <View style={styles.buttonContainer}>
+      {img === null && (
+        <CameraView style={styles.camera} facing={facing} ref={cameraRef}>
+          <View style={styles.buttonContainer}>
 
-          <TouchableOpacity 
-            onPress={() => facing === 'front' ? setFacing('back') : setFacing('front')}
-          >
-            <Text style={styles.font}>Trocar Camera</Text>
-          </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => facing === 'front' ? setFacing('back') : setFacing('front')}
+            >
+              <Text style={styles.font}>Trocar Camera</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity onPress={takePicture}>
-            <Text style={styles.font}>Tirar Foto</Text>
-          </TouchableOpacity>
+            <TouchableOpacity onPress={takePicture}>
+              <Text style={styles.font}>Tirar Foto</Text>
+            </TouchableOpacity>
 
+          </View>
+        </CameraView>
+      )}
+
+      {img && (
+        <View style={styles.container}>
+          <Text>Imagem capturada:</Text>
+          <Image 
+            source={{ uri: img.uri }} 
+            style={{ width: 300, height: 300 }} 
+            contentFit="cover"
+          />
         </View>
-      </CameraView>
+      )}
     </View>
   );
 }
