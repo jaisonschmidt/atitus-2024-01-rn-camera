@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import { StyleSheet, Text, View, Button, TouchableOpacity } from 'react-native';
 
 export default function App() {
   const [permission, requestPermission] = useCameraPermissions();
-  const [facyng, setFacyng] = useState('back');
+  const [facing, setFacing] = useState('front');
 
   if( !permission ) {
     // nem sei se tenho permissão de acesso a camera
@@ -28,8 +28,20 @@ export default function App() {
   // temos permissão para acessar a camera
   return (
     <View style={styles.container}>
-      <CameraView style={styles.camera} facyng={facyng}>
-        <View style={styles.buttonContainer}></View>
+      <CameraView style={styles.camera} facing={facing}>
+        <View style={styles.buttonContainer}>
+
+          <TouchableOpacity 
+            onPress={() => facing === 'front' ? setFacing('back') : setFacing('front')}
+          >
+            <Text style={styles.font}>Trocar Camera</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity>
+            <Text style={styles.font}>Tirar Foto</Text>
+          </TouchableOpacity>
+
+        </View>
       </CameraView>
     </View>
   );
@@ -45,7 +57,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   buttonContainer: {
+    alignItems: 'center',
     backgroundColor: 'transparent',
     flex: 1,
+    justifyContent: 'flex-end',
+  },
+  font: {
+    borderWidth: 1,
+    borderColor: 'white',
+    borderRadius: 5,
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 20,
+    marginBottom: 20,
+    padding: 20,
   }
 });
